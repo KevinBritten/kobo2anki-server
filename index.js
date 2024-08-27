@@ -6,14 +6,17 @@ const deepl = require("deepl-node");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+const DEV_PASSWORD = process.env.PASSWORD;
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const translator = new deepl.Translator(DEEPL_API_KEY);
 
 app.use(bodyParser.json());
 
 app.post("/translate", async (req, res) => {
-  const { text, context, source_lang, target_lang } = req.body;
-
+  const { text, context, source_lang, target_lang, password } = req.body;
+  if (password != DEV_PASSWORD) {
+    res.status(401).json({ error: "Incorrect Password" });
+  }
   if (!text) {
     return res.status(400).json({ error: "Text is required" });
   }
