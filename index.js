@@ -6,7 +6,7 @@ const deepl = require("deepl-node");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DEV_PASSWORD = process.env.PASSWORD;
+const DEV_PASSWORD = process.env.DEV_PASSWORD;
 const DEEPL_API_KEY = process.env.DEEPL_API_KEY;
 const translator = new deepl.Translator(DEEPL_API_KEY);
 
