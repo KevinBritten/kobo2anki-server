@@ -15,7 +15,7 @@ app.use(bodyParser.json());
 app.post("/translate", async (req, res) => {
   const { text, context, source_lang, target_lang, password } = req.body;
   if (password != DEV_PASSWORD) {
-    res.status(401).json({ error: "Incorrect Password" });
+    return res.status(401).json({ error: "Incorrect Password" });
   }
   if (!text) {
     return res.status(400).json({ error: "Text is required" });
