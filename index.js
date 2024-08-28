@@ -22,6 +22,11 @@ app.post("/translate", async (req, res) => {
   }
 
   try {
+    const usage = await translator.getUsage();
+    const { count, limit } = usage.character;
+    if (usage.anyLimitReached() || text.length > limit - count) {
+      return res.status(403).json({ error: "Monthly usage limit exceeded." });
+    }
     const result = await translator.translateText(
       text,
       source_lang || null,
