@@ -3,6 +3,8 @@ const bodyParser = require("body-parser");
 require("dotenv").config();
 const deepl = require("deepl-node");
 
+const { setupLogger, logger } = require("./logger.js");
+
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -15,17 +17,23 @@ app.use(bodyParser.json());
 app.post("/translate", async (req, res) => {
   const { text, context, source_lang, target_lang, password } = req.body;
   if (password != DEV_PASSWORD) {
-    return res.status(401).json({ error: "Incorrect Password" });
+    const error = "Incorrect Password";
+    logger.error(error);
+    return res.status(401).json({ error });
   }
   if (!text) {
-    return res.status(400).json({ error: "Text is required" });
+    const error = "Text is required";
+    logger.error(error);
+    return res.status(400).json({ error });
   }
 
   try {
     const usage = await translator.getUsage();
     const { count, limit } = usage.character;
     if (usage.anyLimitReached() || text.length > limit - count) {
-      return res.status(403).json({ error: "Monthly usage limit exceeded." });
+      const error = "Monthly usage limit exceeded.";
+      logger.error(error);
+      return res.status(403).json({ error });
     }
     const result = await translator.translateText(
       text,
@@ -34,13 +42,15 @@ app.post("/translate", async (req, res) => {
       { context }
     );
     res.json({ translations: result });
-  } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Translation failed", details: error.message });
+  } catch (e) {
+    const error = "Translation failed";
+    logger.error(error);
+    res.status(500).json({ error, details: e.message });
   }
 });
 
+setupLogger();
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  logger.info(`Server is running on port ${PORT}`);
 });
